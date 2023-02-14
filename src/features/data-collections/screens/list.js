@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Table from 'react-bootstrap/Table';
+import { useSelector } from 'react-redux';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,8 +8,12 @@ import Button from 'react-bootstrap/Button';
 import Stack from 'react-bootstrap/Stack';
 import AddForm from './add';
 
+import { datas } from '../actions/dataSlice';
+
 
 const ListData = () => {
+    const theAppData = useSelector(datas) || [];
+
     const [showModal, setShowModal] = useState(false);
 
     return (
@@ -22,29 +27,22 @@ const ListData = () => {
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Job</th>
+                            <th>Phone Number</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td colSpan={2}>Larry the Bird</td>
-                            <td>@twitter</td>
-                        </tr>
+                        {
+                            theAppData.map((value, index) => (
+                                <tr key={index}>
+                                    <td>{index+1}</td>
+                                    <td>{value.name}</td>
+                                    <td>{value.job}</td>
+                                    <td>{value.phoneNumber.join(",")}</td>
+                                </tr>
+                            ))
+                        }
                     </tbody>
                 </Table>
                 </Row>

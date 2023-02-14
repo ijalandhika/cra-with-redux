@@ -1,40 +1,38 @@
 import Table from 'react-bootstrap/Table';
+import PropTypes from 'prop-types';
 
 
-const RelativeTable = () => {
+const RelativeTable = ({ data = [] }) => {
 
     return (
         <Table striped bordered hover>
         <thead>
             <tr>
             <th>#</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Username</th>
+            <th>Name</th>
+            <th>Date of birth</th>
+            <th>Status</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-            </tr>
-            <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-            </tr>
-            <tr>
-            <td>3</td>
-            <td colSpan={2}>Larry the Bird</td>
-            <td>@twitter</td>
-            </tr>
+            {
+                data.map((v, i) => (
+                    <tr key={i}>
+                        <td>{i+1}</td>
+                        <td>{v.name}</td>
+                        <td>{v.dob.toString()}</td>
+                        <td>{v.status}</td>
+                    </tr>
+                ))
+            }
         </tbody>
         </Table>
     )
 };
 
+
+RelativeTable.propTypes = {
+    data: PropTypes.array
+}
 
 export default RelativeTable;

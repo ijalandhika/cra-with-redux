@@ -3,11 +3,17 @@ import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import DatePicker from "react-datepicker";
+import { useForm } from "react-hook-form";
+import { useSelector, useDispatch } from 'react-redux';
 
 import ModalPhoneNumber from './phone';
 import RelativeModal from './relative/modal-relative';
 import RelativeTable from './relative';
+
+import { add } from "../../actions/dataSlice";
+
+import Input from "../../../../components/input";
+import DatePicker from "../../../../components/date-picker";
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -18,10 +24,55 @@ const AddForm = ({
         // this is intentional
     } 
 }) => {
+    const dispatch = useDispatch();
 
-    const [startDate, setStartDate] = useState(new Date());
+    const initialState =  {
+        name: '', 
+        ektp: '', 
+        address: '', 
+        job: '', 
+        birthDate: '', 
+        phoneNumber: [], 
+        relativePerson: []
+    }
+    // eslint-disable-next-line no-unused-vars
+    const [initialValues, setInitialValues] = useState(initialState);
+
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        // watch,
+        control,
+        formState: { errors },
+        setValue
+      } = useForm({
+        mode: "onTouched",
+        reValidateMode: "onSubmit",
+        // reValidateMode: "onChange",
+        defaultValues: initialValues
+      });
+
+    
+
     const [modalPhoneNumber, setModalPhoneNumber] = useState(false);
     const [modalRelative, setModalRelative] = useState(false);
+
+    const onSubmit = (values) => {
+        values.birthDate = values.birthDate.toString();
+        dispatch(add(values));
+        onCloseModal();
+    };
+
+    const onError = (error) => {
+        console.log("ERROR:::", error);
+    };
+
+    const onAddAttribute = (newValue, stateName) => {
+        const currentValue = getValues(stateName);
+        currentValue.push(newValue);
+        setValue(stateName, currentValue);
+    }
 
     return (
         <Modal
@@ -37,45 +88,61 @@ const AddForm = ({
                 <Modal.Title>Add new data</Modal.Title>
             </Modal.Header>
             
-            <Modal.Body>
-                <Form>
-                    <Form.Group className="mb-3" controlId="formName">
-                        <Form.Label>Name</Form.Label>
-                        <Form.Control type="text" placeholder="Enter your name" />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formEKTP">
-                        <Form.Label>E-KTP</Form.Label>
-                        <Form.Control type="text" placeholder="Enter your e-ktp" />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formJob">
-                        <Form.Label>Job</Form.Label>
-                        <Form.Control type="text" placeholder="Enter your job" />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formDOB">
-                        <Form.Label>Date of birth</Form.Label>
-                        <DatePicker className="form-control" selected={startDate} onChange={(date) => setStartDate(date)} />
-                    </Form.Group>
+            <Form onSubmit={handleSubmit(onSubmit, onError)}>
+                <Modal.Body>
+                    <Input 
+                        register={register}
+                        errors={errors}
+                        type="text"
+                        label="Name"
+                        name="name"
+                    />
+                    <Input 
+                        register={register}
+                        errors={errors}
+                        type="text"
+                        label="E-KTP"
+                        name="ektp"
+                    />
+                    <Input 
+                        register={register}
+                        errors={errors}
+                        type="text"
+                        label="Job"
+                        name="job"
+                    />
+                    <DatePicker control={control} />
+                    <Input 
+                        register={register}
+                        errors={errors}
+                        type="text"
+                        as="textarea"
+                        label="Address"
+                        name="address"
+                    />
+                    
                     <Form.Group className="mb-3" controlId="formPhoneNumber">
                         <Form.Label>Phone number</Form.Label>
                         <Button variant="link" onClick={() => setModalPhoneNumber(true)}>+Add</Button>{' '}
-                        <Form.Control type="text" placeholder="Add phone number" disabled />
-                        <ModalPhoneNumber onHide={() => setModalPhoneNumber(false)} show={modalPhoneNumber}/>
+                        <Form.Control type="text" placeholder="Add phone number" disabled value={(getValues('phoneNumber') || []).join(',')}/>
+                        <ModalPhoneNumber 
+                            onHide={() => setModalPhoneNumber(false)} 
+                            show={modalPhoneNumber}
+                            onAddPhoneNumber={onAddAttribute}
+                        />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formPhoneNumber">
                         <Form.Label>Relative</Form.Label>
                         <Button variant="link" onClick={() => setModalRelative(true)}>+Add relative</Button>{' '}
-                        <RelativeModal onHide={() => setModalRelative(false)} show={modalRelative} />
-                        <RelativeTable />
+                        <RelativeModal onHide={() => setModalRelative(false)} show={modalRelative} onAddRelative={onAddAttribute} />
+                        <RelativeTable data={getValues('relativePerson')}/>
                     </Form.Group>
                     
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onCloseModal}>
-                    Close
-                </Button>
-                <Button variant="primary">Understood</Button>
-            </Modal.Footer>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" type="submit">Add</Button>
+                </Modal.Footer>
+            </Form>
         </Modal>
     )
 };

@@ -21,11 +21,15 @@ export const dataSlice = createSlice({
     initialState, 
     reducers: {
         add: (state, action) => {
-            state.value = action.payload
+            const current = state.value || []; 
+            current.push(action.payload);
+            state.value = current;
         }
     }
 });
 
 export const { add } = dataSlice.actions;
+
+export const datas = (state) => state.personalData.value;
 
 export default dataSlice.reducer;

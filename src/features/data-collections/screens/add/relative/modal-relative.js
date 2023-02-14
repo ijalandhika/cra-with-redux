@@ -5,14 +5,17 @@ import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import DatePicker from "react-datepicker";
 
-import { RelationshipStatus } from '../../../utils/relationship-status';
+import { RelationshipStatus, brother } from '../../../utils/relationship-status';
 
 
 const ModalRelative = ({ 
     show = false, 
-    onHide = () => {}
+    onHide = () => {},
+    onAddRelative = () => {}
 }) => {
     const [startDate, setStartDate] = useState(new Date());
+    const [relativeName, setRelativeName] = useState('');
+    const [relativeStatus, setRelativeStatus] = useState(brother);
     return (
         <Modal
             show={show}
@@ -27,7 +30,7 @@ const ModalRelative = ({
             <Modal.Body>
                 <Form.Group className="mb-3" controlId="formName">
                     <Form.Label>Name</Form.Label>
-                    <Form.Control type="text" placeholder="Enter relative name" />
+                    <Form.Control type="text" placeholder="Enter relative name" onChange={(e) => setRelativeName(e.target.value)} />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formDOB">
                     <Form.Label>Date of birth</Form.Label>
@@ -35,7 +38,7 @@ const ModalRelative = ({
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formRelationship">
                     <Form.Label>Relationship status</Form.Label>
-                    <Form.Select >
+                    <Form.Select onChange={(e) => setRelativeStatus(e.target.value)}>
                         {
                             RelationshipStatus.map(e => <option value={e} key={e}>{e}</option>)
                         }
@@ -43,7 +46,23 @@ const ModalRelative = ({
                 </Form.Group>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="primary">Add new relative</Button>
+                <Button 
+                    variant="primary"
+                    onClick={() => {
+                        onAddRelative({
+                            name: relativeName, 
+                            dob: startDate.toString(), 
+                            status: relativeStatus
+                        }, 'relativePerson');
+
+                        setRelativeName('');
+                        setRelativeStatus('');    
+                        setStartDate(new Date());    
+                        onHide();                
+                    }}
+                >
+                    Add new relative
+                </Button>
             </Modal.Footer>
 
         </Modal>
@@ -52,7 +71,8 @@ const ModalRelative = ({
 
 ModalRelative.propTypes = {
     show: PropTypes.bool,
-    onHide: PropTypes.func
+    onHide: PropTypes.func,
+    onAddRelative: PropTypes.func
 }
 
 export default ModalRelative;
